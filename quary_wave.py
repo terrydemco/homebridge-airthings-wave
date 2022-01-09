@@ -1,4 +1,3 @@
-
 # Usage: quary_wave.py BTaddress
 # Output Humidity Temperature Radon_shortterm Radon_shortterm
 # ===============================
@@ -10,14 +9,17 @@ import sys
 from datetime import datetime
 import time
 import struct
+import warnings
+
+warnings.filterwarnings("ignore")
 
 # ====================================
 # No script guards for correct usage
 # ====================================
 # See www.airthings.com for other Python scripts
 
-BTAddress = sys.argv[1]
-
+#BTAddress = sys.argv[1]
+#BTAddress = "00:00:00:00:00:00"
 # ===================================
 # Sensor index definitions
 # ===================================
@@ -58,7 +60,7 @@ class Wave():
         self.radon_st_avg_char = self.periph.getCharacteristics(uuid=self.UUID_RADON_ST_AVG)[0]
         self.radon_lt_avg_char = self.periph.getCharacteristics(uuid=self.UUID_RADON_LT_AVG)[0]
         
-   def read(self, sensor_idx):
+    def read(self, sensor_idx):
         if (sensor_idx==SENSOR_IDX_DATETIME and self.datetime_char!=None):
                 rawdata = self.datetime_char.read()
                 rawdata = struct.unpack('HBBBBB', rawdata)
@@ -81,7 +83,7 @@ class Wave():
                 data    = struct.unpack('H', rawdata)[0] * 1.0
                 unit    = " Bq/m3"
         else:
-            print "ERROR: Incorrect Wave BTaddress or device out of range"
+            print ("ERROR: Incorrect Wave BTaddress or device out of range")
             sys.exit(1)
         return str(data)
 
@@ -95,22 +97,44 @@ class Wave():
             self.radon_st_avg_char = None
             self.radon_lt_avg_char = None
 
-try:
-    #---- Connect to device ----#
-    wave = Wave(BTAddress)
-    wave.connect()
+success = 0
 
-    humidity     = wave.read(SENSOR_IDX_HUMIDITY)
-    temperature  = wave.read(SENSOR_IDX_TEMPERATURE)
-    radon_st_avg = wave.read(SENSOR_IDX_RADON_ST_AVG)
-    radon_lt_avg = wave.read(SENSOR_IDX_RADON_LT_AVG)
+def test():
+    try:
+        
+        wave = Wave(BTAddress)
+        wave.connect()
 
-    print humidity, temperature, radon_st_avg, radon_lt_avg, "done"
-    sys.stdout.flush()
-#    print data
-     #   time.sleep(SamplePeriod)
+        humidity     = wave.read(SENSOR_IDX_HUMIDITY)
+        temperature  = wave.read(SENSOR_IDX_TEMPERATURE)
+        radon_st_avg = wave.read(SENSOR_IDX_RADON_ST_AVG)
+        radon_lt_avg = wave.read(SENSOR_IDX_RADON_LT_AVG)
 
-finally:
-    wave.disconnect()
+        print (humidity, temperature, radon_st_avg, radon_lt_avg, "done")
+        sys.stdout.flush()
+        wave.disconnect()
+        global success
+        success = 1
+    except:
+        pass
+        #print("exception")
+    #except BrokenPipeError:
+        #pass
+    finally:
+        wave.disconnect()
+        pass
+    
 
 
+
+while success == 0 :
+    try:
+        test()
+    except:
+        #print("Success status: ", success)
+        time.sleep(2)
+    finally:
+        pass
+
+    
+    
