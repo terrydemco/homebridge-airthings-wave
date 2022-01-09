@@ -49,6 +49,7 @@ class AirthingsPlugin {
       .addCharacteristic(CustomCharacteristic.RadonLevelLongTermAverage);
 
     setInterval(this.devicePolling.bind(this), this.refresh * 1000);
+    this.devicePolling();
     //this.temperatureService.log = this.log;
   }
 
