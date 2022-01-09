@@ -57,7 +57,7 @@ class AirthingsPlugin {
     var strvalues
     var valuest
     var spawn = require("child_process").spawn;
-    var pythonProcess = spawn('python',[this.path, this.address]);
+    var pythonProcess = spawn('python3',[this.path, this.address]);
     pythonProcess.stdout.on('data', (data) => {
       strvalues = data.toString('utf8');
       valuest = strvalues.split(' ');
